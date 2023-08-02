@@ -29,6 +29,16 @@ export async function signin(req, res) {
     try {
         const login = await db.query('SELECT * FROM users WHERE email = $1', [email]);
         const id = login.rows[0].id;
+        const exist = await db.query('SELECT * FROM sessions WHERE "userId"=$1',[id])
+        if (exist.rowCount > 0){
+            const query = `
+            UPDATE sessions
+            SET "lastStatus" = NOW()
+            WHERE "userId" = $1;
+            `;
+            await db.query(query, [id]);
+            return res.status(200).send(exist.rows[0].Token);
+        }
         if (login.rowCount > 0 && bcrypt.compareSync(password, login.rows[0].password)) {
             const token = uuid();
             await db.query('INSERT INTO sessions ("userId","Token") VALUES($1,$2)', [id, token]);
@@ -41,4 +51,12 @@ export async function signin(req, res) {
     catch (err) {
         return res.status(500).send(err);
     }
+}
+
+
+export async function sessionHandler(){
+    const query = `
+    DELETE FROM sessions
+    WHERE lastStatus <= NOW() - INTERVAL '10 minutes';`
+    await db.query(query);
 }
