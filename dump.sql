@@ -5,7 +5,7 @@
 -- Dumped from database version 12.15 (Ubuntu 12.15-0ubuntu0.20.04.1)
 -- Dumped by pg_dump version 12.15 (Ubuntu 12.15-0ubuntu0.20.04.1)
 
--- Started on 2023-08-03 14:34:43 -03
+-- Started on 2023-08-03 15:01:36 -03
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -60,7 +60,7 @@ CREATE TABLE public.urls (
     id integer NOT NULL,
     "shortURL" text NOT NULL,
     url text NOT NULL,
-    "visitCount" integer NOT NULL,
+    "visitCount" integer,
     "userId" integer NOT NULL,
     "createdAt" timestamp without time zone DEFAULT now() NOT NULL
 );
@@ -224,7 +224,7 @@ ALTER TABLE ONLY public.urls
     ADD CONSTRAINT "urls_userID_fkey" FOREIGN KEY ("userId") REFERENCES public.users(id);
 
 
--- Completed on 2023-08-03 14:34:43 -03
+-- Completed on 2023-08-03 15:01:37 -03
 
 --
 -- PostgreSQL database dump complete
