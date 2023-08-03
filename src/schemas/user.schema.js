@@ -5,3 +5,5 @@ export const signupSchema = Joi.object({
     email: Joi.string().email({ minDomainSegments: 2 }).min(1).required(),
     password: Joi.string().required().min(3)
 })
+
+export const emailSchema = Joi.string().email({ minDomainSegments: 2 }).min(1).required();
