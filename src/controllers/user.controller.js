@@ -28,6 +28,7 @@ export async function signin(req, res) {
     const { email, password } = req.body;
     try {
         const login = await db.query('SELECT * FROM users WHERE email = $1', [email]);
+        if(login.rowCount == 0){return res.status(404).send('Email not Found')}
         const id = login.rows[0].id;
         const exist = await db.query('SELECT * FROM sessions WHERE "userId"=$1',[id])
         if (exist.rowCount > 0){
