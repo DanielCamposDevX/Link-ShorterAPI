@@ -42,7 +42,8 @@ SET default_table_access_method = heap;
 CREATE TABLE public.sessions (
     "userId" integer NOT NULL,
     "Token" text NOT NULL,
-    "lastStatus" timestamp without time zone DEFAULT now() NOT NULL
+    "lastStatus" timestamp without time zone DEFAULT now() NOT NULL,
+    "createdAt" timestamp without time zone DEFAULT now() NOT NULL
 );
 
 
@@ -55,7 +56,8 @@ CREATE TABLE public.urls (
     "shortURL" text NOT NULL,
     url text NOT NULL,
     "visitCount" integer NOT NULL,
-    "userId" integer NOT NULL
+    "userId" integer NOT NULL,
+    "createdAt" timestamp without time zone DEFAULT now() NOT NULL
 );
 
 
