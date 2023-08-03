@@ -5,7 +5,7 @@ import bcrypt from 'bcrypt';
 
 export async function signup(req, res) {
     const { name, email, password, confirmPassword } = req.body;
-    if (password !== confirmPassword) { return res.status(403).send('Passwords dont match'); }
+    if (password !== confirmPassword) { return res.status(422).send('Passwords dont match'); }
     const validation = signupSchema.validate({ name, email, password }, { abortEarly: false });
     if (validation.error) { const errors = validation.error.details.map((detail) => detail.message); return res.status(422).send(errors); }
     try {
@@ -43,7 +43,7 @@ export async function signin(req, res) {
         if (login.rowCount > 0 && bcrypt.compareSync(password, login.rows[0].password)) {
             const token = uuid();
             await db.query('INSERT INTO sessions ("userId","Token") VALUES($1,$2)', [id, token]);
-            return res.status(200).send(token);
+            return res.status(200).send({token});
         }
         else {
             return res.status(401).send('Wrong email or Password');
