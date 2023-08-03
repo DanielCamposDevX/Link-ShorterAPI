@@ -20,7 +20,7 @@ export async function signup(req, res) {
         return res.sendStatus(201);
     }
     catch (err) {
-        return res.status(500).send('servererror');
+        return res.status(500).send(err);
     }
 }
 
