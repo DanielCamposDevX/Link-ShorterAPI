@@ -71,3 +71,37 @@ export async function DeleteShort(req,res){
         res.status(500).send(err);
     }
 }
+
+export async function getRanking(req,res){
+    const query = `
+    SELECT
+    id,
+    username AS name,
+    "totalVisits" AS "visitCount",
+    url_count AS "linksCount"
+    FROM
+    users
+    ORDER BY
+    "totalVisits" DESC
+    LIMIT 10;
+    `
+
+    const ranking = db.query(query);
+    return res.send(ranking.rows);
+}
+
+export async function getMe(req,res){
+    const { authorization } = req.headers;
+    const token = authorization?.replace("Bearer ", "");
+    if (!token) { return res.status(401).send('Unauthorized') };
+    try{
+    const response = await db.query('SELECT "userId" FROM sessions WHERE "Token"=$1',[token]);
+    if(response.rowCount == 0){ return res.status(401).send('Unauthorized') };
+    const userdata = await db.query('SELECT id,username AS name,"totalVisits" AS "visitCount" FROM users');
+    userdata = userdata.rows[0];
+    const urls = await db.query('SELECT id,"shortUrl",url,"visitCount" FROM urls WHERE "userId"=$1',[response.rows[0].userId]);
+    }
+    catch(err){
+        res.status(500).send(err);
+    }
+}
