@@ -5,7 +5,7 @@ import bcrypt from 'bcrypt';
 
 export async function signup(req, res) {
     const { name, email, password, confirmPassword } = req.body;
-    if (password !== confirmPassword) { return res.send('Passwords dont match').status(403); }
+    if (password !== confirmPassword) { return res.status(403).send('Passwords dont match'); }
     const validation = signupSchema.validate({ name, email, password }, { abortEarly: false });
     if (validation.error) { const errors = validation.error.details.map((detail) => detail.message); return res.status(422).send(errors); }
     try {
@@ -20,7 +20,7 @@ export async function signup(req, res) {
         return res.sendStatus(201);
     }
     catch (err) {
-        return res.send('servererror').status(500);
+        return res.status(500).send('servererror');
     }
 }
 
