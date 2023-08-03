@@ -1,4 +1,4 @@
-import { emailSchema, signupSchema } from "../schemas/user.schema.js";
+import { loginSchema, signupSchema } from "../schemas/user.schema.js";
 import db from "../database/database.connection.js";
 import { v4 as uuid } from 'uuid';
 import bcrypt from 'bcrypt';
@@ -26,11 +26,12 @@ export async function signup(req, res) {
 
 export async function signin(req, res) {
     const { email, password } = req.body;
-    const validation = emailSchema.validate(email, { abortEarly: false });
+    const validation = loginSchema.validate({ email, password }, { abortEarly: false });
     if (validation.error) { const errors = validation.error.details.map((detail) => detail.message); return res.status(422).send(errors); }
     try {
+
         const login = await db.query('SELECT * FROM users WHERE email = $1', [email]);
-        if (login.rowCount == 0) { return res.status(401).send('Email not Found') }
+        if (login.rowCount < 1) { return res.status(401).send('Email not Found') }
         const id = login.rows[0].id;
         const exist = await db.query('SELECT * FROM sessions WHERE "userId"=$1', [id])
         if (exist.rowCount > 0) {
