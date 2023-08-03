@@ -100,6 +100,7 @@ export async function getMe(req,res){
     const userdata = await db.query('SELECT id,username AS name,"totalVisits" AS "visitCount" FROM users');
     userdata = userdata.rows[0];
     const urls = await db.query('SELECT id,"shortUrl",url,"visitCount" FROM urls WHERE "userId"=$1',[response.rows[0].userId]);
+    return res.send({userdata, shortenedUrls:urls.rows});
     }
     catch(err){
         res.status(500).send(err);
