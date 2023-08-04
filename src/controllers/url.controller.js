@@ -14,7 +14,7 @@ export async function createShorten(req, res) {
         if(user.rowCount == 0){return res.status(401).send('Unauthorized')};
         const userdata = user.rows[0];
         const shortUrl = nanoid(10);
-        await db.query('INSERT INTO urls ("shortURL",url,"visitCount","userId") VALUES($1,$2,$3,$4)',[shortUrl,url,null,userdata.userId]);
+        await db.query('INSERT INTO urls ("shortURL",url,"visitCount","userId") VALUES($1,$2,$3,$4)',[shortUrl,url,0,userdata.userId]);
         const response = await db.query('SELECT id FROM urls WHERE "shortURL"=$1',[shortUrl]);
         return res.status(201).send({id:response.rows[0].id,shortUrl});
     }
