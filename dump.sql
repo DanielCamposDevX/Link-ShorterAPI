@@ -5,7 +5,7 @@
 -- Dumped from database version 12.15 (Ubuntu 12.15-0ubuntu0.20.04.1)
 -- Dumped by pg_dump version 12.15 (Ubuntu 12.15-0ubuntu0.20.04.1)
 
--- Started on 2023-08-03 15:01:36 -03
+-- Started on 2023-08-04 09:15:51 -03
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -27,8 +27,9 @@ CREATE FUNCTION public.update_total_visits() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
 BEGIN
-    UPDATE "users" SET "totalVisits" = (SELECT SUM("visitCount") FROM "urls" WHERE "userID" = NEW."id")
-    WHERE "id" = NEW."id";
+    UPDATE users
+    SET "totalVisits" = "totalVisits" + NEW."visitCount" - OLD."visitCount"
+    WHERE id = NEW."userId";
     RETURN NEW;
 END;
 $$;
@@ -81,7 +82,7 @@ CREATE SEQUENCE public.urls_id_seq
 
 
 --
--- TOC entry 3000 (class 0 OID 0)
+-- TOC entry 3001 (class 0 OID 0)
 -- Dependencies: 205
 -- Name: urls_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
@@ -120,7 +121,7 @@ CREATE SEQUENCE public.users_id_seq
 
 
 --
--- TOC entry 3001 (class 0 OID 0)
+-- TOC entry 3002 (class 0 OID 0)
 -- Dependencies: 202
 -- Name: users_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
@@ -199,7 +200,15 @@ ALTER TABLE ONLY public.users
 
 
 --
--- TOC entry 2868 (class 2620 OID 16479)
+-- TOC entry 2868 (class 2620 OID 16486)
+-- Name: urls trigger_update_total_visits; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER trigger_update_total_visits AFTER UPDATE ON public.urls FOR EACH ROW EXECUTE FUNCTION public.update_total_visits();
+
+
+--
+-- TOC entry 2869 (class 2620 OID 16479)
 -- Name: urls update_total_visits_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
@@ -224,7 +233,7 @@ ALTER TABLE ONLY public.urls
     ADD CONSTRAINT "urls_userID_fkey" FOREIGN KEY ("userId") REFERENCES public.users(id);
 
 
--- Completed on 2023-08-03 15:01:37 -03
+-- Completed on 2023-08-04 09:15:52 -03
 
 --
 -- PostgreSQL database dump complete
