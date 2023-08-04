@@ -5,7 +5,7 @@
 -- Dumped from database version 14.8 (Ubuntu 14.8-0ubuntu0.22.04.1)
 -- Dumped by pg_dump version 14.8 (Ubuntu 14.8-0ubuntu0.22.04.1)
 
--- Started on 2023-08-03 22:00:02 -03
+-- Started on 2023-08-03 22:11:46 -03
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -249,7 +249,7 @@ ALTER TABLE ONLY public.urls
     ADD CONSTRAINT "urls_userID_fkey" FOREIGN KEY ("userId") REFERENCES public.users(id);
 
 
--- Completed on 2023-08-03 22:00:02 -03
+-- Completed on 2023-08-03 22:11:46 -03
 
 --
 -- PostgreSQL database dump complete
