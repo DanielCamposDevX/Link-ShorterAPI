@@ -88,7 +88,7 @@ export async function getRanking(req,res){
     `
 
     const ranking = await db.query(query);
-    return res.send(ranking.rows);
+    return res.status(200).send(ranking.rows);
 }
 
 export async function getMe(req,res){
