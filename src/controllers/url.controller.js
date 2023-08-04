@@ -95,12 +95,13 @@ export async function getMe(req,res){
     const token = authorization?.replace("Bearer ", "");
     if (!token) { return res.status(401).send('Unauthorized') };
     try{
-    const response = await db.query('SELECT "userId" FROM sessions WHERE "Token"=$1',[token]);
+    const response = await db.query('SELECT "userId" FROM sessions WHERE "Token"=$1;',[token]);
     if(response.rowCount == 0){ return res.status(401).send('Unauthorized') };
-    const userdata = await db.query('SELECT id,username AS name,"totalVisits" AS "visitCount" FROM users');
-    userdata = userdata.rows[0];
-    const urls = await db.query('SELECT id,"shortUrl",url,"visitCount" FROM urls WHERE "userId"=$1',[response.rows[0].userId]);
-    return res.send({userdata, shortenedUrls:urls.rows});
+    const userdata = await db.query('SELECT id,username AS name,"totalVisits" AS "visitCount" FROM users;');
+    const data = userdata.rows[0];
+    const id = response.rows[0].userId
+    const urls = await db.query('SELECT id,"shortURL" AS "shortUrl",url,"visitCount" FROM urls WHERE "userId"=$1',[id]);
+    return res.send({data, shortenedUrls:urls.rows});
     }
     catch(err){
         res.status(500).send(err);
