@@ -99,7 +99,7 @@ export async function getMe(req,res){
     try{
     const response = await db.query('SELECT "userId" FROM sessions WHERE "Token"=$1;',[token]);
     if(response.rowCount == 0){ return res.status(401).send('Unauthorized') };
-    const userdata = await db.query('SELECT id,username AS name,"totalVisits" AS "visitCount" FROM users;');
+    const userdata = await db.query('SELECT id,username AS name,"totalVisits" AS "visitCount" FROM users WHERE id=$1;',[response.rows[0].userId]);
     const data = userdata.rows[0];
     const name = data.name;
     const visitCount = data.visitCount;
