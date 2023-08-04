@@ -44,7 +44,7 @@ export async function redirect(req,res){
     const { shortUrl } = req.params;
     const response = await db.query('SELECT url FROM urls WHERE "shortURL"=$1',[shortUrl]);
     if(response.rowCount == 0){return res.sendStatus(404)};
-    await db.query('UPDATE urls SET "visitCount" = COALESCE("visitCount", 0) + 1 WHERE "shortURL" = $1',[shortUrl]);
+    await db.query('UPDATE urls SET "visitCount" = "visitCount" + 1 WHERE "shortURL" = $1',[shortUrl]);
     const url = response.rows[0].url;
     res.redirect(url);
     }

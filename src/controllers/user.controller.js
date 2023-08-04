@@ -61,6 +61,6 @@ export async function signin(req, res) {
 export async function sessionHandler() {
     const query = `
     DELETE FROM sessions
-    WHERE lastStatus <= NOW() - INTERVAL '10 minutes';`
+    WHERE "lastStatus" <= NOW() - INTERVAL '10 minutes';`
     await db.query(query);
 }

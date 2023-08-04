@@ -5,7 +5,7 @@
 -- Dumped from database version 12.15 (Ubuntu 12.15-0ubuntu0.20.04.1)
 -- Dumped by pg_dump version 12.15 (Ubuntu 12.15-0ubuntu0.20.04.1)
 
--- Started on 2023-08-04 09:15:51 -03
+-- Started on 2023-08-04 13:29:52 -03
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -19,17 +19,22 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 --
--- TOC entry 207 (class 1255 OID 16478)
--- Name: update_total_visits(); Type: FUNCTION; Schema: public; Owner: -
+-- TOC entry 207 (class 1255 OID 16488)
+-- Name: update_total_count(); Type: FUNCTION; Schema: public; Owner: -
 --
 
-CREATE FUNCTION public.update_total_visits() RETURNS trigger
+CREATE FUNCTION public.update_total_count() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
 BEGIN
-    UPDATE users
-    SET "totalVisits" = "totalVisits" + NEW."visitCount" - OLD."visitCount"
+    UPDATE Users
+    SET "totalVisits" = (
+        SELECT SUM("visitCount")
+        FROM urls
+        WHERE "userId" = NEW."userId"
+    )
     WHERE id = NEW."userId";
+
     RETURN NEW;
 END;
 $$;
@@ -82,7 +87,7 @@ CREATE SEQUENCE public.urls_id_seq
 
 
 --
--- TOC entry 3001 (class 0 OID 0)
+-- TOC entry 3000 (class 0 OID 0)
 -- Dependencies: 205
 -- Name: urls_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
@@ -100,7 +105,7 @@ CREATE TABLE public.users (
     username text NOT NULL,
     password text NOT NULL,
     "createdAt" timestamp without time zone DEFAULT now() NOT NULL,
-    "totalVisits" integer,
+    "totalVisits" integer NOT NULL,
     email text NOT NULL,
     url_count integer
 );
@@ -121,7 +126,7 @@ CREATE SEQUENCE public.users_id_seq
 
 
 --
--- TOC entry 3002 (class 0 OID 0)
+-- TOC entry 3001 (class 0 OID 0)
 -- Dependencies: 202
 -- Name: users_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
@@ -200,19 +205,11 @@ ALTER TABLE ONLY public.users
 
 
 --
--- TOC entry 2868 (class 2620 OID 16486)
--- Name: urls trigger_update_total_visits; Type: TRIGGER; Schema: public; Owner: -
+-- TOC entry 2868 (class 2620 OID 16489)
+-- Name: urls after_urls_insert_update; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER trigger_update_total_visits AFTER UPDATE ON public.urls FOR EACH ROW EXECUTE FUNCTION public.update_total_visits();
-
-
---
--- TOC entry 2869 (class 2620 OID 16479)
--- Name: urls update_total_visits_trigger; Type: TRIGGER; Schema: public; Owner: -
---
-
-CREATE TRIGGER update_total_visits_trigger AFTER INSERT OR UPDATE ON public.urls FOR EACH ROW EXECUTE FUNCTION public.update_total_visits();
+CREATE TRIGGER after_urls_insert_update AFTER INSERT OR UPDATE ON public.urls FOR EACH ROW EXECUTE FUNCTION public.update_total_count();
 
 
 --
@@ -233,7 +230,7 @@ ALTER TABLE ONLY public.urls
     ADD CONSTRAINT "urls_userID_fkey" FOREIGN KEY ("userId") REFERENCES public.users(id);
 
 
--- Completed on 2023-08-04 09:15:52 -03
+-- Completed on 2023-08-04 13:29:52 -03
 
 --
 -- PostgreSQL database dump complete
