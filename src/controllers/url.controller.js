@@ -80,7 +80,6 @@ export async function getRanking(req,res){
     id,
     username AS name,
     "totalVisits" AS "visitCount",
-    url_count AS "linksCount"
     FROM
     users
     ORDER BY
@@ -88,7 +87,7 @@ export async function getRanking(req,res){
     LIMIT 10;
     `
 
-    const ranking = db.query(query);
+    const ranking = await db.query(query);
     return res.send(ranking.rows);
 }
 
