@@ -44,6 +44,7 @@ export async function redirect(req,res){
     const { shortUrl } = req.params;
     const response = await db.query('SELECT url FROM urls WHERE "shortURL"=$1',[shortUrl]);
     if(response.rowCount == 0){return res.sendStatus(404)};
+    await db.query('UPDATE urls SET "visitCount" = COALESCE("visitCount", 0) + 1 WHERE "shortURL" = $1',[shortUrl]);
     const url = response.rows[0].url;
     res.redirect(url);
     }
@@ -63,6 +64,7 @@ export async function DeleteShort(req,res){
     if(response.rowCount == 0){ return res.status(401).send('Unauthorized') };
     const userId = response.rows[0].userId;
     const short = await db.query('SELECT "userId" FROM urls WHERE id=$1',[id])
+    if(short.rowCount < 1){return res.sendStatus(404)};
     if(userId != short.rows[0].userId){return res.status(401).send('Unauthorized')};
     await db.query('DELETE FROM urls WHERE id=$1',[id]);
     return res.sendStatus(204);
@@ -99,9 +101,11 @@ export async function getMe(req,res){
     if(response.rowCount == 0){ return res.status(401).send('Unauthorized') };
     const userdata = await db.query('SELECT id,username AS name,"totalVisits" AS "visitCount" FROM users;');
     const data = userdata.rows[0];
+    const name = data.name;
+    const visitCount = data.visitCount;
     const id = response.rows[0].userId
     const urls = await db.query('SELECT id,"shortURL" AS "shortUrl",url,"visitCount" FROM urls WHERE "userId"=$1',[id]);
-    return res.send({data, shortenedUrls:urls.rows});
+    return res.send({id,name,visitCount, shortenedUrls:urls.rows});
     }
     catch(err){
         res.status(500).send(err);
