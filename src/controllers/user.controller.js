@@ -16,7 +16,7 @@ export async function signup(req, res) {
         }
 
         const cryptpass = bcrypt.hashSync(password, 10);
-        await db.query('INSERT INTO users (email,username,password,totalVisits) VALUES($1,$2,$3,$4)', [email, name, cryptpass,0]);
+        await db.query('INSERT INTO users (email,username,password,"totalVisits") VALUES($1,$2,$3,$4)', [email, name, cryptpass,0]);
         return res.sendStatus(201);
     }
     catch (err) {
