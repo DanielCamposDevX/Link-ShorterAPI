@@ -5,7 +5,7 @@
 -- Dumped from database version 14.8 (Ubuntu 14.8-0ubuntu0.22.04.1)
 -- Dumped by pg_dump version 14.8 (Ubuntu 14.8-0ubuntu0.22.04.1)
 
--- Started on 2023-08-03 20:46:07 -03
+-- Started on 2023-08-03 22:00:02 -03
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -29,6 +29,31 @@ CREATE FUNCTION public.update_total_visits() RETURNS trigger
 BEGIN
     UPDATE "users" SET "totalVisits" = (SELECT SUM("visitCount") FROM "urls" WHERE "userId" = NEW."id")
     WHERE "id" = NEW."id";
+    RETURN NEW;
+END;
+$$;
+
+
+--
+-- TOC entry 215 (class 1255 OID 16434)
+-- Name: update_user_visit_count(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.update_user_visit_count() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    -- Update the visitCount for each user in the "users" table
+    UPDATE "users" AS u
+    SET "visitCount" = COALESCE((
+        SELECT SUM(uv."visitCount")
+        FROM "urls" AS ur
+        JOIN "url_visits" AS uv ON ur."id" = uv."urlID"
+        WHERE ur."userID" = NEW."userID"
+    ), 0)
+    WHERE "id" = NEW."userID";
+
+    -- Return the updated row
     RETURN NEW;
 END;
 $$;
@@ -81,7 +106,7 @@ CREATE SEQUENCE public.urls_id_seq
 
 
 --
--- TOC entry 3384 (class 0 OID 0)
+-- TOC entry 3385 (class 0 OID 0)
 -- Dependencies: 211
 -- Name: urls_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
@@ -120,7 +145,7 @@ CREATE SEQUENCE public.users_id_seq
 
 
 --
--- TOC entry 3385 (class 0 OID 0)
+-- TOC entry 3386 (class 0 OID 0)
 -- Dependencies: 213
 -- Name: users_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
@@ -129,7 +154,7 @@ ALTER SEQUENCE public.users_id_seq OWNED BY public.users.id;
 
 
 --
--- TOC entry 3222 (class 2604 OID 16408)
+-- TOC entry 3223 (class 2604 OID 16408)
 -- Name: urls id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -137,7 +162,7 @@ ALTER TABLE ONLY public.urls ALTER COLUMN id SET DEFAULT nextval('public.urls_id
 
 
 --
--- TOC entry 3224 (class 2604 OID 16409)
+-- TOC entry 3225 (class 2604 OID 16409)
 -- Name: users id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -145,7 +170,7 @@ ALTER TABLE ONLY public.users ALTER COLUMN id SET DEFAULT nextval('public.users_
 
 
 --
--- TOC entry 3226 (class 2606 OID 16411)
+-- TOC entry 3227 (class 2606 OID 16411)
 -- Name: sessions sessions_Token_key; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -154,7 +179,7 @@ ALTER TABLE ONLY public.sessions
 
 
 --
--- TOC entry 3228 (class 2606 OID 16413)
+-- TOC entry 3229 (class 2606 OID 16413)
 -- Name: urls urls_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -163,7 +188,7 @@ ALTER TABLE ONLY public.urls
 
 
 --
--- TOC entry 3230 (class 2606 OID 16415)
+-- TOC entry 3231 (class 2606 OID 16415)
 -- Name: urls urls_shortURL_key; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -172,7 +197,7 @@ ALTER TABLE ONLY public.urls
 
 
 --
--- TOC entry 3232 (class 2606 OID 16417)
+-- TOC entry 3233 (class 2606 OID 16417)
 -- Name: users users_email_key; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -181,7 +206,7 @@ ALTER TABLE ONLY public.users
 
 
 --
--- TOC entry 3234 (class 2606 OID 16419)
+-- TOC entry 3235 (class 2606 OID 16419)
 -- Name: users users_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -190,7 +215,7 @@ ALTER TABLE ONLY public.users
 
 
 --
--- TOC entry 3236 (class 2606 OID 16421)
+-- TOC entry 3237 (class 2606 OID 16421)
 -- Name: users users_username_key; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -199,7 +224,7 @@ ALTER TABLE ONLY public.users
 
 
 --
--- TOC entry 3239 (class 2620 OID 16423)
+-- TOC entry 3240 (class 2620 OID 16423)
 -- Name: urls update_total_visits_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
@@ -207,7 +232,7 @@ CREATE TRIGGER update_total_visits_trigger AFTER INSERT OR UPDATE ON public.urls
 
 
 --
--- TOC entry 3237 (class 2606 OID 16424)
+-- TOC entry 3238 (class 2606 OID 16424)
 -- Name: sessions sessions_userId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -216,7 +241,7 @@ ALTER TABLE ONLY public.sessions
 
 
 --
--- TOC entry 3238 (class 2606 OID 16429)
+-- TOC entry 3239 (class 2606 OID 16429)
 -- Name: urls urls_userID_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -224,7 +249,7 @@ ALTER TABLE ONLY public.urls
     ADD CONSTRAINT "urls_userID_fkey" FOREIGN KEY ("userId") REFERENCES public.users(id);
 
 
--- Completed on 2023-08-03 20:46:07 -03
+-- Completed on 2023-08-03 22:00:02 -03
 
 --
 -- PostgreSQL database dump complete
